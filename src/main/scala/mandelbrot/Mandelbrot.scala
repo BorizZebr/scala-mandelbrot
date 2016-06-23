@@ -5,8 +5,11 @@ package mandelbrot
   */
 object Mandelbrot {
 
-  implicit val fj = new collection.parallel.ForkJoinTaskSupport(
-    new scala.concurrent.forkjoin.ForkJoinPool(Runtime.getRuntime.availableProcessors))
+  import scala.collection.parallel.ForkJoinTaskSupport
+  import scala.concurrent.forkjoin.ForkJoinPool
+
+  implicit val fj = new ForkJoinTaskSupport(
+    new ForkJoinPool(Runtime.getRuntime.availableProcessors))
 
   def compute(lo: Point, hi: Point, wdt: Int, hgt: Int, threshold: Int): Array[Int] = {
 

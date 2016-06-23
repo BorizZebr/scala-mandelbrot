@@ -1,16 +1,15 @@
 package mandelbrot
 
-import java.awt.{Graphics, Graphics2D, RenderingHints, image}
 import java.awt.event.{MouseAdapter, MouseEvent, MouseMotionAdapter, MouseWheelEvent}
 import java.awt.geom.AffineTransform
+import java.awt.image.BufferedImage
+import java.awt.{Graphics, Graphics2D, RenderingHints}
 import javax.swing.JComponent
 
 /**
   * Created by borisbondarenko on 22.06.16.
   */
 class MandelbrotCanvas(frame: MandelbrotFrame) extends JComponent {
-
-  //val pixels = new Array[Int](4000 * 4000)
 
   def threshold = frame.threshold.getText.toInt
   def zoom = frame.zoomlevel.getValue.asInstanceOf[Int] / 10.0 * 500.0
@@ -41,10 +40,18 @@ class MandelbrotCanvas(frame: MandelbrotFrame) extends JComponent {
     }
   })
 
+  var buffResFactor : String = "1"
   addMouseListener(new MouseAdapter {
     override def mousePressed(e: MouseEvent) {
+      buffResFactor = resFactor.toString
       xlast = -1
       ylast = -1
+      frame.resFactor.setText((resFactor / 4).toString)
+    }
+
+    override def mouseReleased(e: MouseEvent) {
+      frame.resFactor.setText(buffResFactor)
+      repaint()
     }
   })
 
@@ -56,6 +63,7 @@ class MandelbrotCanvas(frame: MandelbrotFrame) extends JComponent {
     }
   })
 
+  var image: Option[BufferedImage] = None
   override def paintComponent(g: Graphics) {
     super.paintComponent(g)
     val start = System.nanoTime
@@ -72,10 +80,11 @@ class MandelbrotCanvas(frame: MandelbrotFrame) extends JComponent {
 
     val end = System.nanoTime
     val time = (end - start) / 1000000.0
-    val stats = "size: " + getWidth + "x" + getHeight + ", time: " + time + " ms" + ", bounds=(" + xoff + ", " + yoff + ")"
-    frame.setTitle("Mandelbrot: " + stats)
+    val stats = s"size: $getWidth x $getHeight, time: $time ms, bounds=($xoff, $yoff)"
+    frame.setTitle(s"Mandelbrot: $stats")
 
-    val img = new image.BufferedImage(scW, scH, image.BufferedImage.TYPE_INT_ARGB)
+    val img = new BufferedImage(scW, scH, BufferedImage.TYPE_INT_ARGB)
+    image = Some(img)
     for (x <- 0 until scW; y <- 0 until scH) {
       val color = pixels(y * scW + x)
       img.setRGB(x, y, color)
@@ -86,8 +95,6 @@ class MandelbrotCanvas(frame: MandelbrotFrame) extends JComponent {
     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
       RenderingHints.VALUE_INTERPOLATION_BILINEAR)
     g2.drawImage(img, xform, null)
-
-    //javax.imageio.ImageIO.write(img, "png", new java.io.File("mandelbrot.png"))
   }
 }
 

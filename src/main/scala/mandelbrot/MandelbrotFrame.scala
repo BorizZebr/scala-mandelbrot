@@ -2,6 +2,9 @@ package mandelbrot
 
 import java.awt.event.{ActionEvent, ActionListener}
 import java.awt.{BorderLayout, GridLayout}
+import java.io.File
+import java.time.LocalDateTime
+import javax.imageio.ImageIO
 import javax.swing.event.{ChangeEvent, ChangeListener}
 import javax.swing.{JSpinner, JTextField, _}
 
@@ -23,9 +26,6 @@ class MandelbrotFrame extends JFrame("Mandelbrot") {
 
   val panel = new JPanel
   panel.setLayout(new GridLayout(0, 1))
-
-//  var threshold = 1000
-//  var zoomlevel = 150
 
   val controls = new JPanel
   controls.setLayout(new GridLayout(0, 2))
@@ -57,6 +57,20 @@ class MandelbrotFrame extends JFrame("Mandelbrot") {
     }
   })
   controls.add(resFactor)
+
+  val takePictureButton = new JButton("Take a picture")
+  takePictureButton.addActionListener(new ActionListener() {
+    def actionPerformed(e: ActionEvent) {
+      canvas.image.map { i =>
+        val time = LocalDateTime.now
+        ImageIO.write(
+          i,
+          "png",
+          new File(s"mandelbrot_${time.getMinute}_${time.getSecond}_.png"))
+      }
+    }
+  })
+  controls.add(takePictureButton)
 
   panel.add(controls)
 
