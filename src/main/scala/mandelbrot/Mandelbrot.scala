@@ -27,10 +27,19 @@ object Mandelbrot {
         if (iters < threshold) {
           val t = iters.toDouble / threshold.toDouble
 
+//          val r = (9*(1-t)*t*t*t*255).toInt
+//          val g = (15*(1-t)*(1-t)*t*t*255).toInt
+//          val b = (8.5*(1-t)*(1-t)*(1-t)*t*255).toInt
+//
+//          255 << 24 | r << 16 | g << 8 | b
+
+//          val origColor = 255 << 24 | r << 16 | g << 8 | b
+//          (0xFFFFFF - origColor) | 0xFF000000
+
           val r = (9*(1-t)*t*t*t*255).toInt
           val g = (15*(1-t)*(1-t)*t*t*255).toInt
           val b = (8.5*(1-t)*(1-t)*(1-t)*t*255).toInt
-          255 << 24 | r << 16 | g << 8 | b
+          255 << 24 | r << 16 | (r & g) << 8 | (r & g & b)
         }
         else 255 << 24 | 0 << 16 | 0 << 8 | 0
     }
